@@ -1,0 +1,65 @@
+﻿@model IEnumerable<SitioPersona.Models.VentaD>
+
+@{
+    ViewData["Title"] = "Venta";
+}
+
+<h1>Ventas</h1>
+<br />
+<p>
+    <a asp-action="Create" class="btn btn-primary">Realizar nueva venta</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdVenta)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cantidad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorUnitario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorTotal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CedulaCliente)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdProducto)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <th>
+                @Html.DisplayFor(modelItem => item.IdVenta)
+            </th>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cantidad)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ValorUnitario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ValorTotal)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CedulaCliente)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdProducto)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id = item.IdVenta }) |
+                @Html.ActionLink("Borrar", "Delete", new { id = item.IdVenta })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

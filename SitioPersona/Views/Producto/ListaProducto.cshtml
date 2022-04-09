@@ -1,0 +1,47 @@
+﻿@model IEnumerable<SitioPersona.Models.Producto>
+
+@{
+    ViewData["Title"] = "Producto";
+}
+
+<h1>Productos</h1>
+<br />
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear nuevo Producto</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdProducto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorUnitario)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdProducto)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValorUnitario)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.IdProducto }) |
+                    @Html.ActionLink("Borrar", "Delete", new { id = item.IdProducto })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

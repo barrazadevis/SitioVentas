@@ -1,0 +1,54 @@
+﻿@model IEnumerable<SitioPersona.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Cliente";
+}
+
+<h1>Cliente</h1>
+<br />
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear nuevo cliente</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Cedula)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Telefono)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <input type="hidden" value="@Html.DisplayFor(modelItem => item.IdCliente)" />
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cedula)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Apellido)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Telefono)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.IdCliente }) |
+                    @Html.ActionLink("Borrar", "Delete", new { id = item.IdCliente })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

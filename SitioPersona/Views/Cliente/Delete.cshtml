@@ -1,0 +1,47 @@
+﻿@model SitioPersona.Models.Cliente
+
+@{
+    ViewData["Title"] = "Borrar cliente";
+}
+
+<h1>Borrar cliente</h1>
+
+<div class="card-body">
+    <form asp-controller="Cliente" asp-action="Delete" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="IdCliente" />
+
+        <div class="form-group">
+            <label asp-for="Cedula" class="control-label"></label>
+            <input asp-for="Cedula" class="form-control" readonly />
+            <span asp-validation-for="Cedula" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Nombre" class="control-label"></label>
+            <input asp-for="Nombre" class="form-control" readonly />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Apellido" class="control-label"></label>
+            <input asp-for="Apellido" class="form-control" readonly />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Telefono" class="control-label"></label>
+            <input asp-for="Telefono" class="form-control" readonly />
+            <span asp-validation-for="Telefono" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">Borrar cliente</button>
+        </div>
+
+    </form>
+    <div>
+        <a asp-action="ListadoCliente" class="btn btn-secondary">Volver a lista</a>
+    </div>
+</div>
