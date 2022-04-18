@@ -1,4 +1,4 @@
-﻿@model SitioPersona.Models.VentaD
+﻿@model SitioPersona.Models.VentaViewModel
 
 @{
     ViewData["Title"] = "Editar venta";
@@ -10,43 +10,50 @@
     <form asp-action="Edit" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <input type="hidden" asp-for="IdCliente" />
+        <input type="hidden" asp-for="venta.IdVenta" />
 
         <div class="form-group">
-            <label class="control-label">Consecutivo de venta</label>
-            <input asp-for="IdVenta" class="form-control" readonly />
-            <span asp-validation-for="IdVenta" class="text-danger"></span>
+            <label class="control-label">Producto</label>
+            <select name="Venta.IdProducto" class="form-control">
+                <option>Seleccione...</option>
+                @foreach (var producto in Model.Producto)
+                {
+                    <option selected="@(producto.IdProducto == Model.venta.IdProducto ? true:false)" Value="@producto.IdProducto">@producto.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="Producto" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label class="control-label">Codigo de producto</label>
-            <input asp-for="IdProducto" class="form-control" />
-            <span asp-validation-for="IdProducto" class="text-danger"></span>
+            <label class="control-label">Cliente</label>
+            <select name="Venta.IdCliente" class="form-control">
+                <option>Seleccione...</option>
+                @foreach (var cliente in Model.Cliente)
+                {
+                    <option selected="@(cliente.IdCliente == Model.venta.IdCliente ? true:false)" value="@cliente.IdCliente">@cliente.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="Cliente" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label class="control-label">Cedula de cliente</label>
-            <input asp-for="CedulaCliente" class="form-control" readonly />
-            <span asp-validation-for="CedulaCliente" class="text-danger"></span>
+            <label asp-for="venta.Cantidad" class="control-label"></label>
+            <input id="vCantidad" name="Venta.Cantidad" class="form-control" />
+            <span asp-validation-for="venta.Cantidad" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label asp-for="Cantidad" class="control-label"></label>
-            <input asp-for="Cantidad" class="form-control" />
-            <span asp-validation-for="Cantidad" class="text-danger"></span>
+            <label asp-for="venta.ValorUnitario" class="control-label"></label>
+            <input id="vUnitario" name="Venta.ValorUnitario" class="form-control" />
+            <span asp-validation-for="venta.ValorUnitario" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label asp-for="ValorUnitario" class="control-label"></label>
-            <input asp-for="ValorUnitario" class="form-control" />
-            <span asp-validation-for="ValorUnitario" class="text-danger"></span>
+            <label asp-for="venta.ValorTotal" class="control-label"></label>
+            <input id="vTotal" name="Venta.ValorTotal" class="form-control" readonly />
+            <span asp-validation-for="venta.ValorTotal" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
-            <label asp-for="ValorTotal" class="control-label"></label>
-            <input asp-for="ValorTotal" class="form-control" />
-            <span asp-validation-for="ValorTotal" class="text-danger"></span>
-        </div>
 
         <div class="form-group">
             <button type="submit" class="btn btn-success">Editar venta</button>
@@ -57,3 +64,15 @@
         <a asp-action="ListaVenta" class="btn btn-secondary">Volver a lista</a>
     </div>
 </div>
+<script>
+    var cantidad = document.getElementById('vCantidad');
+    var vUnitario = document.getElementById('vUnitario');
+    vUnitario.addEventListener('change',
+        function () {
+            document.getElementById('vTotal').value = (cantidad.value * vUnitario.value);
+        });
+    cantidad.addEventListener('change',
+        function () {
+            document.getElementById('vTotal').value = (cantidad.value * vUnitario.value);
+        });
+</script>

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SitioPersona.Models.VentaD>
+﻿@model IEnumerable<SitioPersona.Models.VentaViewModel>
 
 @{
     ViewData["Title"] = "Venta";
@@ -13,53 +13,61 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IdVenta)
+                @Html.DisplayNameFor(model => model.venta.IdVenta)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Cantidad)
+                @Html.DisplayNameFor(model => model.Cliente)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ValorUnitario)
+                @Html.DisplayNameFor(model => model.Producto)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ValorTotal)
+                @Html.DisplayNameFor(model => model.venta.Cantidad)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CedulaCliente)
+                @Html.DisplayNameFor(model => model.venta.ValorUnitario)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IdProducto)
+                @Html.DisplayNameFor(model => model.venta.ValorTotal)
             </th>
+
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <th>
-                @Html.DisplayFor(modelItem => item.IdVenta)
-            </th>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cantidad)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValorUnitario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValorTotal)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CedulaCliente)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdProducto)
-            </td>
-            <td>
-                @Html.ActionLink("Editar", "Edit", new { id = item.IdVenta }) |
-                @Html.ActionLink("Borrar", "Delete", new { id = item.IdVenta })
-            </td>
-        </tr>
+            <tr>
+                <th>
+                    @Html.DisplayFor(modelItem => item.venta.IdVenta)
+                </th>
+                <td>
+                    @foreach (var cliente in item.Cliente)
+                    {
+                        @Html.DisplayFor(modelItem => cliente.Nombre)
+                    }
+
+                </td>
+                <td>
+                    @foreach (var producto in item.Producto)
+                    {
+                        @Html.DisplayFor(modelItem => producto.Nombre)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.venta.Cantidad)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.venta.ValorUnitario)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.venta.ValorTotal)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.venta.IdVenta }) |
+                    @Html.ActionLink("Borrar", "Delete", new { id = item.venta.IdVenta })
+                </td>
+            </tr>
         }
     </tbody>
 </table>

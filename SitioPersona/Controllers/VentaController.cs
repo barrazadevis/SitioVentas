@@ -30,9 +30,9 @@ namespace SitioPersona.Controllers
         {
 
             IEnumerable<Venta> ventas;
-            IEnumerable<VentaD> ventasListado;
-            List<VentaD> ventasd = new List<VentaD>();
-            VentaD venta;
+            IEnumerable<VentaViewModel> ventasListado;
+            List<VentaViewModel> ventasd = new List<VentaViewModel>();
+            VentaViewModel venta;
             using (var client = new HttpClient())
             {
                 try
@@ -52,17 +52,14 @@ namespace SitioPersona.Controllers
 
                         foreach (var ve in ventas)
                         {
-
-                            var responseClienteTask = client.GetAsync($"Cliente/{ve.IdCliente}").Result.Content.ReadAsAsync<Cliente>().Result;
-
-                            venta = new VentaD();
-                            venta.IdCliente = ve.IdCliente;
-                            venta.IdProducto = ve.IdProducto;
-                            venta.IdVenta = ve.IdVenta;
-                            venta.ValorUnitario = ve.ValorUnitario;
-                            venta.ValorTotal = ve.ValorTotal;
-                            venta.Cantidad = ve.Cantidad;
-                            venta.CedulaCliente = responseClienteTask.Cedula;
+                            venta = new VentaViewModel();
+                            venta.venta = ve;
+                            var cl = client.GetAsync($"Cliente/{ve.IdCliente}").Result.Content.ReadAsAsync<Cliente>().Result;
+                            venta.Cliente = new List<Cliente>();
+                            venta.Cliente.Add(cl);
+                            var pr = client.GetAsync($"Producto/{ve.IdProducto}").Result.Content.ReadAsAsync<Producto>().Result;
+                            venta.Producto = new List<Producto>();
+                            venta.Producto.Add(pr);
                             ventasd.Add(venta);
                         }
 
@@ -74,15 +71,15 @@ namespace SitioPersona.Controllers
                     {
                         //log response status here..
 
-                        ventasListado = Enumerable.Empty<VentaD>();
+                        ventasListado = Enumerable.Empty<VentaViewModel>();
 
                         ModelState.AddModelError(string.Empty, "Se presentaron errores al cargar la lista de clientes");
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
 
-                    ventasListado = Enumerable.Empty<VentaD>();
+                    ventasListado = Enumerable.Empty<VentaViewModel>();
 
                     ModelState.AddModelError(string.Empty, "No Hubo conexión con el servidor remoto, contacte al administrador");
                 }
@@ -94,34 +91,46 @@ namespace SitioPersona.Controllers
         // GET: HomeController/Create
         public ActionResult Create()
         {
+            var ventaViewModel = new VentaViewModel();
 
-            return View();
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    client.BaseAddress = new Uri(apiBaseUrl);
+                    //HTTP GET
+                    var productos = client.GetAsync($"Producto").Result.Content.ReadAsAsync<List<Producto>>().Result;
+                    ventaViewModel.Producto = productos;
+
+                    var clientes = client.GetAsync($"Cliente").Result.Content.ReadAsAsync<List<Cliente>>().Result;
+                    ventaViewModel.Cliente = clientes;
+                }
+                catch (Exception)
+                {
+
+                    ModelState.AddModelError(string.Empty, "No se pudo cargar la lista");
+                }
+
+            }
+            return View(ventaViewModel);
 
         }
 
         // POST: HomeController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(VentaD venta)
+        public ActionResult Create(Venta venta)
         {
+            var ventaViewModel = new VentaViewModel();
+            ventaViewModel.venta = venta;
+
             using (var client = new HttpClient())
             {
                 try
                 {
-
                     client.BaseAddress = new Uri(apiBaseUrl);
-                    var responseClienteTask = client.GetAsync($"ClienteVenta/{venta.CedulaCliente}").Result.Content.ReadAsAsync<Cliente>().Result;
-
-                    Venta ventaIn = new Venta();
-                    ventaIn.IdVenta = venta.IdVenta;
-                    ventaIn.IdCliente = responseClienteTask.IdCliente;
-                    ventaIn.IdProducto = venta.IdProducto;
-                    ventaIn.Cantidad = venta.Cantidad;
-                    ventaIn.ValorUnitario = venta.ValorUnitario;
-                    ventaIn.ValorTotal = venta.ValorTotal;
-
                     //HTTP POST
-                    var postTask = client.PostAsJsonAsync<Venta>("Venta", ventaIn);
+                    var postTask = client.PostAsJsonAsync<Venta>("Venta", venta);
                     postTask.Wait();
 
                     var result = postTask.Result;
@@ -130,19 +139,19 @@ namespace SitioPersona.Controllers
                         return RedirectToAction("ListaVenta");
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                     ModelState.AddModelError(string.Empty, "No hubo comunicación con el servidor remoto, comuniquese con el administrador");
 
-                    return View("Create", venta);
+                    return View("Create", ventaViewModel);
                 }
 
             }
 
             ModelState.AddModelError(string.Empty, "Se presentaron errores al registrar");
 
-            return View("Create", venta);
+            return View("Create", ventaViewModel);
         }
 
         // GET: HomeController/Edit/5
@@ -157,6 +166,7 @@ namespace SitioPersona.Controllers
             {
                 try
                 {
+                    var ventaViewModel = new VentaViewModel();
                     client.BaseAddress = new Uri(apiBaseUrl);
                     //HTTP POST
                     var getTask = client.GetAsync($"Venta/{id}");
@@ -165,17 +175,11 @@ namespace SitioPersona.Controllers
                     var result = getTask.Result;
                     if (result.IsSuccessStatusCode)
                     {
-                        var venta = result.Content.ReadAsAsync<Venta>().Result;
-                        var responseClienteTask = client.GetAsync($"Cliente/{venta.IdCliente}").Result.Content.ReadAsAsync<Cliente>().Result;
-                        VentaD ventaIn = new VentaD();
-                        ventaIn.IdVenta = venta.IdVenta;
-                        ventaIn.IdCliente = venta.IdCliente;
-                        ventaIn.IdProducto = venta.IdProducto;
-                        ventaIn.Cantidad = venta.Cantidad;
-                        ventaIn.ValorUnitario = venta.ValorUnitario;
-                        ventaIn.ValorTotal = venta.ValorTotal;
-                        ventaIn.CedulaCliente = responseClienteTask.Cedula;
-                        return View(ventaIn);
+                        ventaViewModel.venta = result.Content.ReadAsAsync<Venta>().Result;
+                        ventaViewModel.Cliente = client.GetAsync("Cliente").Result.Content.ReadAsAsync<List<Cliente>>().Result;
+                        ventaViewModel.Producto = client.GetAsync("Producto").Result.Content.ReadAsAsync<List<Producto>>().Result;
+
+                        return View(ventaViewModel);
                     }
                     return NotFound();
                 }
@@ -194,17 +198,11 @@ namespace SitioPersona.Controllers
         // POST: HomeController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(VentaD venta)
+        public IActionResult Edit(Venta venta)
         {
-            Venta ventaIn = new Venta();
-            ventaIn.IdVenta = venta.IdVenta;
-            ventaIn.IdCliente = venta.IdCliente;
-            ventaIn.IdProducto = venta.IdProducto;
-            ventaIn.Cantidad = venta.Cantidad;
-            ventaIn.ValorUnitario = venta.ValorUnitario;
-            ventaIn.ValorTotal = venta.ValorTotal;
-
-            if (ventaIn.IdVenta > 0)
+            var ventaViewModel = new VentaViewModel();
+            ventaViewModel.venta = venta;
+            if (venta.IdVenta > 0)
             {
                 using (var client = new HttpClient())
                 {
@@ -212,7 +210,7 @@ namespace SitioPersona.Controllers
                     {
                         client.BaseAddress = new Uri(apiBaseUrl);
                         //HTTP POST
-                        var postTask = client.PutAsJsonAsync<Venta>("Venta", ventaIn);
+                        var postTask = client.PutAsJsonAsync<Venta>("Venta", venta);
                         postTask.Wait();
 
                         var result = postTask.Result;
@@ -226,7 +224,7 @@ namespace SitioPersona.Controllers
 
                         ModelState.AddModelError(string.Empty, "No hubo comunicación con el servidor remoto, comuniquese con el administrador");
 
-                        return View("Edit", venta);
+                        return View("Edit", ventaViewModel);
                     }
 
                 }
@@ -250,6 +248,7 @@ namespace SitioPersona.Controllers
             {
                 try
                 {
+                    var ventaViewModel = new VentaViewModel();
                     client.BaseAddress = new Uri(apiBaseUrl);
                     //HTTP POST
                     var getTask = client.GetAsync($"Venta/{id}");
@@ -258,17 +257,11 @@ namespace SitioPersona.Controllers
                     var result = getTask.Result;
                     if (result.IsSuccessStatusCode)
                     {
-                        var venta = result.Content.ReadAsAsync<Venta>().Result;
-                        var responseClienteTask = client.GetAsync($"Cliente/{venta.IdCliente}").Result.Content.ReadAsAsync<Cliente>().Result;
-                        VentaD ventaIn = new VentaD();
-                        ventaIn.IdVenta = venta.IdVenta;
-                        ventaIn.IdCliente = venta.IdCliente;
-                        ventaIn.IdProducto = venta.IdProducto;
-                        ventaIn.Cantidad = venta.Cantidad;
-                        ventaIn.ValorUnitario = venta.ValorUnitario;
-                        ventaIn.ValorTotal = venta.ValorTotal;
-                        ventaIn.CedulaCliente = responseClienteTask.Cedula;
-                        return View(ventaIn);
+                        ventaViewModel.venta = result.Content.ReadAsAsync<Venta>().Result;
+                        ventaViewModel.Cliente = client.GetAsync("Cliente").Result.Content.ReadAsAsync<List<Cliente>>().Result;
+                        ventaViewModel.Producto = client.GetAsync("Producto").Result.Content.ReadAsAsync<List<Producto>>().Result;
+
+                        return View(ventaViewModel);
                     }
                     return NotFound();
                 }
